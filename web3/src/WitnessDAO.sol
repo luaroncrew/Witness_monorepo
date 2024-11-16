@@ -17,28 +17,31 @@ contract WitnessDAO is Ownable {
     uint256 public voteDuration = 1 weeks;
     uint256 public banThresholdPercentage = 50;
     uint256 public REPORT_THRESHOLD = 3;
-    address public SIGN_PROTOCOL_ADDRESS = 0x878c92FD89d8E0B93Dc0a3c907A2adc7577e39c5;
+    address public SIGN_PROTOCOL_ADDRESS = 0x4e4af2a21ebf62850fD99Eb6253E1eFBb56098cD;
 
 
     // mapping attestationId -> votes for the attestation pertinence
     mapping(uint64 => Vote) public votes;
 
+    // create an array of the indexes of the votes
+    uint64[] public voteIndexes;
+
     // mapping attestationId -> reportCount
     mapping(uint64 => uint256) public reportCounts;
 
     // mapping userIdentifier -> status
-    mapping(bytes32 => Status) public userStatus;
+    mapping(string => Status) public userStatus;
 
 
     struct Vote {
         uint256 startTime;
         uint256 yesVotes;
         uint256 noVotes;
-        bytes32 userUnderInvestigation;
+        string userUnderInvestigation;
     }
 
     struct AttestationData {
-        bytes32 author;
+        string author;
         string cid;
         string location;
         uint256 timestamp;
@@ -52,7 +55,7 @@ contract WitnessDAO is Ownable {
     function startVote(uint64 attestationId) internal {
         Attestation memory attestation = isp.getAttestation(attestationId);
         AttestationData memory attestationData = abi.decode(attestation.data, (AttestationData));
-        bytes32 userIdentifier = attestationData.author;
+        string memory userIdentifier = attestationData.author;
 
         require(!(votes[attestationId].startTime < block.timestamp), "Vote already active");
         votes[attestationId] = Vote({
@@ -64,14 +67,14 @@ contract WitnessDAO is Ownable {
         setUserStatus(userIdentifier, Status.UNDER_INVESTIGATION);
     }
 
-    function castVote(uint64 attestationId, bytes32 userIdentifier, bool support) external {
+    function castVote(uint64 attestationId, string memory userIdentifier, bool support) external onlyOwner {
         // TODO: block the user from voting multiple times
         require(!isBanned(userIdentifier), "Banned users vote");
         require(block.timestamp < votes[attestationId].startTime + voteDuration, "Voting period ended");
         support ? votes[attestationId].yesVotes++ : votes[attestationId].noVotes++;
     }
 
-    function endVote(uint64 attestationId) external onlyOwner {
+    function endVote(uint64 attestationId) internal {
         Vote storage vote = votes[attestationId];
         require(block.timestamp >= vote.startTime + voteDuration, "Voting period not ended");
 
@@ -93,23 +96,27 @@ contract WitnessDAO is Ownable {
     }
 
     // --- backdoor functions ---
-    function ban(bytes32 userIdentifier) external onlyOwner {
+    function ban(string memory userIdentifier) external onlyOwner {
         setUserStatus(userIdentifier, Status.BANNED);
     }
 
 
     // --- User Status Management ---
-    function setUserStatus(bytes32 userIdentifier, Status status) internal {
+    function setUserStatus(string memory userIdentifier, Status status) internal {
         userStatus[userIdentifier] = status;
     }
 
-    function isBanned(bytes32 userIdentifier) public view returns (bool) {
+    function isBanned(string memory userIdentifier) public view returns (bool) {
         return userStatus[userIdentifier] == Status.BANNED;
+    }
+
+    function forceVoteStart(uint64 attestationId) external onlyOwner{
+        startVote(attestationId);
     }
 
     // attestationId represents the id of link of the image and the testimony posted on Sign Protocol
     // userIdentifier is the World Id's sub: a unique identifier for the witness app
-    function reportImage(uint64 attestationId, bytes32 userIdentifier) external {
+    function reportImage(uint64 attestationId, string memory userIdentifier) external {
         // would be cool to verify the existence before reporting using the following:
         // Attestation attestation = isp.getAttestation(attestationId);
 
@@ -123,4 +130,16 @@ contract WitnessDAO is Ownable {
             startVote(attestationId);
         }
     }
+
+    // iterate over all the votes to find those that must be ended
+    function endVotes() external onlyOwner {
+        for(uint64 voteIndex = 0; voteIndex < voteIndexes.length; voteIndex++) {
+            uint64 attestationId = voteIndexes[voteIndex];
+            Vote storage vote = votes[attestationId];
+            if (block.timestamp >= vote.startTime + voteDuration) {
+                endVote(attestationId);
+            }
+        }
+    }
+
 }
