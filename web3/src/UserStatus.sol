@@ -17,7 +17,7 @@ contract UserStatusValidator is Ownable {
         dao = WitnessDAO(daoAddress);
     }
 
-    function checkStatus(bytes32 author) public view {
+    function checkStatus(string memory author) public view {
         require(dao.isBanned(author) == false, "Cannot attest for banned user");
     }
 }
@@ -30,7 +30,7 @@ contract DataValidatorHook is ISPHook, UserStatusValidator {
 
 
     struct AttestationData {
-        bytes32 author;
+        string author;
         string cid;
         string location;
         uint256 timestamp;
@@ -51,7 +51,8 @@ contract DataValidatorHook is ISPHook, UserStatusValidator {
     payable
     {
         Attestation memory attestation = ISP(_msgSender()).getAttestation(attestationId);
-        bytes32 attestedAuthor = abi.decode(attestation.data, (AttestationData)).author;
+        (string memory attestedAuthor,,,,) = abi.decode(attestation.data, (string, string, string, uint256, string));
+        // string memory attestedAuthor = "Hello";
         checkStatus(attestedAuthor);
     }
 
@@ -61,7 +62,7 @@ contract DataValidatorHook is ISPHook, UserStatusValidator {
         uint64, // attestationId
         IERC20, // resolverFeeERC20Token
         uint256, // resolverFeeERC20Amount
-        bytes calldata // extraData
+        bytes calldata // extraDxata
     )
         external
         pure
