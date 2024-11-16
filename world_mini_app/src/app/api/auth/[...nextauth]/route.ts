@@ -11,7 +11,7 @@ export const handler = NextAuth({
       type: "oauth",
       wellKnown: "https://id.worldcoin.org/.well-known/openid-configuration",
       authorization: { params: { scope: "openid profile" } },
-      clientId: process.env.NEXT_PUBLIC_WLD_APP_ID,
+      clientId: process.env.NEXT_PUBLIC_WLD_MINI_APP_ID,
       clientSecret: process.env.WLD_CLIENT_SECRET,
       idToken: true,
       checks: ["state", "nonce", "pkce"],
@@ -31,7 +31,6 @@ export const handler = NextAuth({
       return true;
     },
     async jwt({ token }) {
-      token.userRole = "admin";
       return token;
     },
   },

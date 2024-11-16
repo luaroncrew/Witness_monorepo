@@ -20,9 +20,8 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body>
+      <body className="overflow-x-hidden bg-black">
         <Providers session={session}>{children}</Providers>
-        {/* {children} */}
       </body>
     </html>
   );

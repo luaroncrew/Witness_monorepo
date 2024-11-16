@@ -8,6 +8,8 @@ import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { config } from "@/lib/wagmi";
 import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
+import MiniKitProvider from "./minikit-provider";
+import { ErudaProvider } from "./eruda";
 
 export default function Providers({
   children,
@@ -20,19 +22,23 @@ export default function Providers({
 
   return (
     <SessionProvider session={session}>
-      <DynamicContextProvider
-        theme="auto"
-        settings={{
-          environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID!,
-          walletConnectors: [EthereumWalletConnectors],
-        }}
-      >
-        <WagmiProvider config={config}>
-          <QueryClientProvider client={queryClient}>
-            <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
-          </QueryClientProvider>
-        </WagmiProvider>
-      </DynamicContextProvider>
+      <ErudaProvider>
+        <MiniKitProvider>
+          <DynamicContextProvider
+            theme="auto"
+            settings={{
+              environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID!,
+              walletConnectors: [EthereumWalletConnectors],
+            }}
+          >
+            <WagmiProvider config={config}>
+              <QueryClientProvider client={queryClient}>
+                <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
+              </QueryClientProvider>
+            </WagmiProvider>
+          </DynamicContextProvider>
+        </MiniKitProvider>
+      </ErudaProvider>
     </SessionProvider>
   );
 }
