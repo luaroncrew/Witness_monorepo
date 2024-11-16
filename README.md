@@ -4,7 +4,7 @@
 https://www.canva.com/design/DAGWqzpqt5s/6UcyAHnDBg6cfoYYEz5ybw/view?utm_content=DAGWqzpqt5s&utm_campaign=designshare&utm_medium=link&utm_source=editor
 )
 
-[link to demo] (
+[link to demo](
 https://youtu.be/4BWs8_iUDkQ
 )
 
@@ -16,8 +16,8 @@ repo structure:
 
 
 
-![](assets/intropic.png)
-![](assets/screrns.png)
+![](intropic.png)
+![](screrns.png)
 
 
 ## Motivation
