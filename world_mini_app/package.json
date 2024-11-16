@@ -1,0 +1,49 @@
+{
+  "name": "witness",
+  "version": "0.1.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@dynamic-labs/ethereum": "^2.6.3",
+    "@dynamic-labs/sdk-react-core": "^2.6.3",
+    "@dynamic-labs/wagmi-connector": "^2.6.3",
+    "@ethsign/sp-sdk": "^0.7.7",
+    "@radix-ui/react-scroll-area": "^1.2.0",
+    "@radix-ui/react-separator": "^1.1.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@tanstack/react-query": "^5.27.5",
+    "@types/node": "20.14.11",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@worldcoin/idkit": "^1.2.2",
+    "@worldcoin/idkit-core": "^1.2.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "eslint": "9.7.0",
+    "eslint-config-next": "14.2.5",
+    "image-hash": "^5.3.2",
+    "lucide-react": "^0.454.0",
+    "next": "^14.2.5",
+    "next-auth": "^4.24.10",
+    "npm": "^10.9.0",
+    "pinata-web3": "^0.5.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "5.5.4",
+    "viem": "*",
+    "wagmi": "^2.5.7",
+    "web3": "^4.14.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "10.4.19",
+    "postcss": "8.4.39",
+    "tailwindcss": "3.4.6"
+  }
+}

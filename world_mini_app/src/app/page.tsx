@@ -1,0 +1,102 @@
+"use client";
+
+import { VerificationLevel, IDKitWidget, useIDKit } from "@worldcoin/idkit";
+import type { ISuccessResult } from "@worldcoin/idkit";
+import { testData, verify } from "./actions/verify";
+import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
+import { signIn, signOut, useSession } from "next-auth/react";
+
+export default function Home() {
+  const app_id = process.env.NEXT_PUBLIC_WLD_APP_ID as `app_${string}`;
+  const action = process.env.NEXT_PUBLIC_WLD_ACTION;
+
+  if (!app_id) {
+    throw new Error("app_id is not set in environment variables!");
+  }
+  if (!action) {
+    throw new Error("action is not set in environment variables!");
+  }
+
+  const { setOpen } = useIDKit();
+
+  const onSuccess = (result: ISuccessResult) => {
+    // This is where you should perform frontend actions once a user has been verified, such as redirecting to a new page
+    window.alert(
+      "Successfully verified with World ID! Your nullifier hash is: " +
+        result.nullifier_hash
+    );
+  };
+
+  const handleProof = async (result: ISuccessResult) => {
+    console.log(
+      "Proof received from IDKit, sending to backend:\n",
+      JSON.stringify(result)
+    ); // Log the proof from IDKit to the console for visibility
+    const data = await verify(result);
+    if (data.success) {
+      console.log("Successful response from backend:\n", JSON.stringify(data)); // Log the response from our backend for visibility
+    } else {
+      throw new Error(`Verification failed: ${data.detail}`);
+    }
+  };
+
+  const sendFile = async () => {
+    if (
+      !(document.getElementById("file-input") as HTMLInputElement)?.files?.[0]
+    ) {
+      return;
+    }
+
+    const formData = new FormData();
+    const file = (document.getElementById("file-input") as HTMLInputElement)!
+      .files![0];
+    console.log("file", file);
+
+    formData.append("file", file);
+    await testData(formData);
+  };
+
+  const testSession = async () => {
+    const res = await fetch("/api/auth/test");
+    const data = await res.json();
+    console.log("data", data);
+  };
+
+  return (
+    <div>
+      <div className="flex flex-col items-center justify-center align-middle h-screen">
+        <p className="text-2xl mb-5">World ID Cloud Template</p>
+        <IDKitWidget
+          action={action}
+          app_id={app_id}
+          onSuccess={onSuccess}
+          handleVerify={handleProof}
+          verification_level={VerificationLevel.Orb} // Change this to VerificationLevel.Device to accept Orb- and Device-verified users
+        />
+        <button
+          className="border border-black rounded-md"
+          onClick={() => setOpen(true)}
+        >
+          <div className="mx-3 my-1">Verify with World ID</div>
+        </button>
+        <div className="mt-8">
+          <DynamicWidget />
+        </div>
+        <input id="file-input" type="file" />
+        <button onClick={sendFile}>Send</button>
+        <a
+          href={`/api/auth/signin`}
+          onClick={(e) => {
+            e.preventDefault();
+            signIn("worldcoin"); // when worldcoin is the only provider
+            // signIn() // when there are multiple providers
+          }}
+        >
+          Sign in
+        </a>
+        <button onClick={testSession}>Test Session</button>
+        <button onClick={() => signOut()}>Sign Out</button>
+      </div>
+    </div>
+  );
+}

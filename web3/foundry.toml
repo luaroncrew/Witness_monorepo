@@ -1,0 +1,10 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+sender = "0x6A3672a40129061DDD7883Dfbe7B7A9c1698e726"
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+
+[rpc_endpoints]
+sepolia = "https://sepolia.infura.io/v3/e1da6c8ccd4a42a58a36c1c8c7e174f6"
